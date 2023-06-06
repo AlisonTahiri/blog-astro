@@ -1,0 +1,60 @@
+---
+import BlogLayout from "../../layouts/BlogLayout.astro";
+import MainLayout from "../../layouts/MainLayout.astro";
+import type { Post } from "../../models/post";
+export async function getStaticPaths() {
+    const response = await fetch("http://127.0.0.1:1337/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            query: `
+        query {
+        posts {
+        data {
+            attributes {
+                title
+                slug
+                content
+                cover {
+                  data {
+                    id
+                    attributes {
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+            }
+        }
+    }
+}
+      `,
+        }),
+    });
+    const { data } = await response.json();
+
+    return data.posts.data.map((post: Post) => {
+        return {
+            params: { slug: post.attributes.slug },
+            props: { post },
+        };
+    });
+}
+
+const { post } = Astro.props;
+
+const imgUrl = post.attributes.cover.data.attributes.url;
+const imgHeight = post.attributes.cover.data.attributes.height;
+const imgWidth = post.attributes.cover.data.attributes.width;
+const title = post.attributes.title;
+const content = post.attributes.content;
+---
+
+<MainLayout title={title}>
+    <BlogLayout>
+        <h2>{title}</h2>
+        <p>{content}</p>
+        <img src={imgUrl} height={imgHeight} width={imgWidth} />
+    </BlogLayout>
+</MainLayout>

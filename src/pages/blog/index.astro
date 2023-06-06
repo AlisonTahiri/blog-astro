@@ -1,0 +1,67 @@
+---
+import Card from "../../components/ui/Card.astro";
+import BlogLayout from "../../layouts/BlogLayout.astro";
+import MainLayout from "../../layouts/MainLayout.astro";
+import type { Post } from "../../models/post";
+
+const response = await fetch("http://127.0.0.1:1337/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        query: `
+        query {
+        posts {
+        data {
+            attributes {
+                title
+                content
+                slug
+                cover {
+                  data {
+                    id
+                    attributes {
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+            }
+        }
+    }
+}
+      `,
+    }),
+});
+
+const { data } = await response.json();
+---
+
+<MainLayout title="Posts">
+    <BlogLayout>
+        <h1>Astro blog</h1>
+        <section class="flex gap-4">
+            {
+                data.posts.data.map((p: Post) => {
+                    const imgUrl = p.attributes.cover.data.attributes.url;
+                    const imgHeight = p.attributes.cover.data.attributes.height;
+                    const imgWidth = p.attributes.cover.data.attributes.width;
+                    const title = p.attributes.title;
+                    const description = p.attributes.content;
+                    const slug = p.attributes.slug;
+
+                    return (
+                        <Card
+                            imgUrl={imgUrl}
+                            slug={slug}
+                            description={description}
+                            imgHeight={imgHeight}
+                            imgWidth={imgWidth}
+                            title={title}
+                        />
+                    );
+                })
+            }
+        </section>
+    </BlogLayout>
+</MainLayout>
