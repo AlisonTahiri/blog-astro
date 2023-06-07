@@ -4,18 +4,46 @@ type Props = {
 	slug: string;
 	description: string;
 	imgUrl: string;
-	imgHeight: string;
-	imgWidth: string;
+	createdAt: string;
+	updatedAt: string;
+	categories: string[];
 };
 
-const { description, imgHeight, imgUrl, imgWidth, slug, title }: Props =
-	Astro.props;
+const {
+	createdAt,
+	categories,
+	description,
+	imgUrl,
+	slug,
+	title,
+	updatedAt,
+}: Props = Astro.props;
+
+const createdAtDate = new Date(createdAt).toLocaleDateString("en-us", {
+	weekday: "long",
+	year: "numeric",
+	month: "short",
+	day: "numeric",
+});
+
+const updatedAtDate = new Date(updatedAt).toLocaleDateString("en-us", {
+	weekday: "long",
+	year: "numeric",
+	month: "short",
+	day: "numeric",
+});
 ---
 
-<div class="max-w-lg p-4 shadow-md bg-bgk2">
+<div class="max-w-2xl p-4 shadow-md bg-bgk2">
 	<div class="flex justify-between pb-4 border-bottom">
-		<div class="flex items-center">
-			<div class="mb-0 capitalize dark:text-gray-100">Category</div>
+		<div class="flex items-center gap-2">
+			{
+				categories.map((c) => (
+					<div class="bg-bgk px-2 py-1 rounded-md capitalize">
+						{c}
+					</div>
+				))
+			}
 		</div>
 		<a rel="noopener noreferrer" href={`/blog/${slug}`}>See All</a>
 	</div>
@@ -26,18 +54,19 @@ const { description, imgHeight, imgUrl, imgWidth, slug, title }: Props =
 				alt=""
 				class="block object-cover object-center w-full rounded-md h-72 dark:bg-gray-500"
 			/>
-			<div class="flex items-center text-xs">
-				<span>6 min ago</span>
+			<div class="text-xs">
+				<p>First Posted: {createdAtDate}</p>
+				<p>Last Updated: {updatedAtDate}</p>
 			</div>
 		</div>
 		<div class="space-y-2">
 			<a rel="noopener noreferrer" href="#" class="block">
-				<h3 class="text-xl font-semibold dark:text-violet-400">
+				<h3 class="text-xl font-semibold">
 					{title}
 				</h3>
 			</a>
-			<p class="leading-snug dark:text-gray-400">
-				{description}
+			<p class="leading-snug overflow-clip">
+				{description.split(" ").slice(0, 15).join(" ") + "..."}
 			</p>
 		</div>
 	</div>

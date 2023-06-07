@@ -16,13 +16,20 @@ const response = await fetch("http://127.0.0.1:1337/graphql", {
                 title
                 content
                 slug
+                createdAt
+                updatedAt
+                categories {
+                data {
+                  attributes {
+                    name
+                  }
+                }
+              }
                 cover {
                   data {
                     id
                     attributes {
                       url
-                      width
-                      height
                     }
                   }
                 }
@@ -39,29 +46,35 @@ const { data } = await response.json();
 
 <MainLayout title="Posts">
     <BlogLayout>
-        <h1>Astro blog</h1>
-        <section class="flex gap-4">
-            {
-                data.posts.data.map((p: Post) => {
-                    const imgUrl = p.attributes.cover.data.attributes.url;
-                    const imgHeight = p.attributes.cover.data.attributes.height;
-                    const imgWidth = p.attributes.cover.data.attributes.width;
-                    const title = p.attributes.title;
-                    const description = p.attributes.content;
-                    const slug = p.attributes.slug;
+        <section class="flex flex-col gap-4 py-4">
+            <h1 class="text-2xl">Blog</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:grid-cols-3">
+                {
+                    data.posts.data.map((p: Post) => {
+                        const imgUrl = p.attributes.cover.data.attributes.url;
+                        const title = p.attributes.title;
+                        const description = p.attributes.content;
+                        const slug = p.attributes.slug;
+                        const createdAt = p.attributes.createdAt;
+                        const updatedAt = p.attributes.updatedAt;
+                        const categories = p.attributes.categories.data.map(
+                            (c) => c.attributes.name
+                        );
 
-                    return (
-                        <Card
-                            imgUrl={imgUrl}
-                            slug={slug}
-                            description={description}
-                            imgHeight={imgHeight}
-                            imgWidth={imgWidth}
-                            title={title}
-                        />
-                    );
-                })
-            }
+                        return (
+                            <Card
+                                categories={categories}
+                                imgUrl={imgUrl}
+                                slug={slug}
+                                description={description}
+                                title={title}
+                                createdAt={createdAt}
+                                updatedAt={updatedAt}
+                            />
+                        );
+                    })
+                }
+            </div>
         </section>
     </BlogLayout>
 </MainLayout>
